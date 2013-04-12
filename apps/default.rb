@@ -9,7 +9,7 @@ Rails.application.config.generators do |g|
 end
 RUBY
 
-@recipes = ["capybara", "cucumber", "rspec"] 
+@recipes = ["rspec", "shoulda-matchers", "factory_girl_rails", "database_cleaner", "capybara", "cucumber"] 
 
 def recipes; @recipes end
 def recipe?(name); @recipes.include?(name) end
@@ -68,10 +68,21 @@ say_recipe 'RSpec'
 
 @configs[@current_recipe] = config
 
-gem 'rspec-rails', '>= 2.0.1', :group => [:development, :test]
+gem 'rspec-rails', :group => [:development, :test]
 
 inject_into_file "config/initializers/generators.rb", :after => "Rails.application.config.generators do |g|\n" do
-  "    g.test_framework = :rspec\n"
+  [
+    "\t# Definir rspec como framework de pruebas, y evitar que genere pruebas para los templates de las vistas:",
+    "\tg.test_framework    :rspec, view_specs: false, fixture: false",
+    "\tg.integration_tool  :rspec",
+    "\t",
+    "\tg.assets false",
+    "\tg.helper false",
+    "\t",
+    "\t# Definir FactoryGirl como \"fixture_replacement\":",
+    "\tg.fixture_replacement :factory_girl, dir: 'spec/factories'",
+  ].join("\n") + "\n"
+  
 end
 
 after_bundler do
@@ -90,9 +101,6 @@ say_recipe 'Shoulda::Matchers'
 
 gem 'shoulda-matchers', group: [:development, :test]
 
-# Add dependency to gemspec:
-inject_into_file "#{engine_name}.gemspec", "\ts.add_development_dependency 'shoulda-matchers'\n", :before => /^end$/i
-
 after_bundler do
   inject_into_file "spec/spec_helper.rb", "require 'shoulda/matchers/integrations/rspec'\n", after: /^require '(.+)'\s$/i
 end
@@ -108,9 +116,6 @@ say_recipe 'factory_girl_rails'
 
 gem 'factory_girl_rails', group: [:development, :test]
 
-# Add dependency to gemspec:
-inject_into_file "#{engine_name}.gemspec", "\ts.add_development_dependency 'factory_girl_rails'\n", before: /^end$/i
-
 after_bundler do
   inject_into_file "spec/spec_helper.rb", "require 'factory_girl_rails'\n", after: /^require '(.+)'\s$/i
 end
@@ -125,9 +130,6 @@ say_recipe 'database_cleaner'
 @configs[@current_recipe] = config
 
 gem 'database_cleaner', group: [:development, :test]
-
-# Add dependency to gemspec:
-inject_into_file "#{engine_name}.gemspec", "\ts.add_development_dependency 'database_cleaner'\n", before: /^end$/i
 
 after_bundler do
   inject_into_file "spec/spec_helper.rb", "require 'database_cleaner'\n", after: /^require '(.+)'\s$/i
