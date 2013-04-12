@@ -1,0 +1,3 @@
+#!/bin/bash
+# Script para crear un engine de Rails con mysql2...
+rails new . -m https://raw.github.com/vovimayhem/rails-project-templates/master/app/default.rb -T --database=mysql

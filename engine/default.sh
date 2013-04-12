@@ -1,0 +1,3 @@
+#!/bin/bash
+# Script para crear un engine de Rails con mysql2...
+rails plugin new . -m https://raw.github.com/vovimayhem/rails-project-templates/master/engine/default.rb -T --database=mysql --mountable
